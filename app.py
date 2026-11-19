@@ -44,7 +44,13 @@ VOICES = [
 SAMPLE = '打标签这件事，核心是把模糊的业务概念，变成可重复的判断。所以真正难的不是标注本身，而是先把定义说清楚。'
 
 
+_VOICE_CACHE = None  # 成功拉取一次后缓存；失败不缓存，下次请求会重试
+
+
 def _voices_list():
+    global _VOICE_CACHE
+    if _VOICE_CACHE is not None:
+        return _VOICE_CACHE
     got = []
     try:
         import edge_tts
@@ -54,6 +60,7 @@ def _voices_list():
             got.append({'id': v['ShortName'], 'label': '%s · %s' % (
                 v['ShortName'].split('-')[-1].replace('Neural', ''),
                 v.get('Gender', '') + ' ' + v.get('Locale', ''))})
+        _VOICE_CACHE = got
     except Exception:
         pass
     return got
